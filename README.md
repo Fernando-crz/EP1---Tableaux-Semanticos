@@ -4,8 +4,13 @@ Projeto de MAC0239 com intuito de implementar um sistema de provas para cálculo
 
 Alunos:
 Fernando Cruz >>> fernando-crz 
+
 Matheus Jurgensen >> mathjug
+
 Rafael Magalhães >> RwarlordM
+
 Lucas Francesco >> uramekus
+
 Leonardo Bozzetto >> Bozzetto
+
 Eduardo Mendes >> dudis-dot
