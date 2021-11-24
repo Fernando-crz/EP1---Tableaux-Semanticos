@@ -108,6 +108,20 @@ def aplicar_alfa_ramo(ramo: list):
 					ramo.append(Marcada(True,marcada.children[0]))
 					ramo.append(Marcada(False,marcada.children[1]))
 
+def aplicar_beta(marcada: Marcada) -> tuple:
+	"""
+	Expande expressao marcada com expressao beta.
+	"""	
+	if marcada.valor:
+		if isinstance(marcada.formula, Or):
+			return (Marcada(True,marcada.children[0]), Marcada(True,marcada.children[1])) 
+		if isinstance(marcada.formula, Implies):
+			return (Marcada(False,marcada.children[0]), Marcada(True,marcada.children[1]))
+	else:
+		if isinstance(marcada.formula, And):
+			return (Marcada(False,marcada.children[0]), Marcada(False,marcada.children[1])) 
+		if isinstance(marcada.formula, Not):
+			return (Marcada(True,marcada.children[0]))
 
 def provar_validade(ramo: list) -> bool:
 	pass # a implementar
