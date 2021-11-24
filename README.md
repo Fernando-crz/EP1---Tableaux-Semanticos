@@ -2,7 +2,7 @@
 
 Projeto de MAC0239 com intuito de implementar um sistema de provas para cálculo proposicional, usando a técnica de tableaux semânticos para provar validade(ou não) de expressões.
 
-###Alunos:
+### Alunos:
 
 **Fernando Cruz >>> fernando-crz** 
 
