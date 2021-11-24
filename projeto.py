@@ -88,7 +88,7 @@ def eh_ramo_fechado(ramo: list) -> bool:
 			expressoes_saturadas.append(marcada)
 	return False
 			
-def aplicar_alfa(ramo: list):
+def aplicar_alfa_ramo(ramo: list):
 	"""
 	Expande todas expressoes alfa em ramo, adicionando elementos encontrados ao ramo.
 	"""
