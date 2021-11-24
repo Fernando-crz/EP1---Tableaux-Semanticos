@@ -2,15 +2,16 @@
 
 Projeto de MAC0239 com intuito de implementar um sistema de provas para cálculo proposicional, usando a técnica de tableaux semânticos para provar validade(ou não) de expressões.
 
-Alunos:
-Fernando Cruz >>> fernando-crz 
+###Alunos:
 
-Matheus Jurgensen >> mathjug
+**Fernando Cruz >>> fernando-crz** 
 
-Rafael Magalhães >> RwarlordM
+**Matheus Jurgensen >> mathjug**
 
-Lucas Francesco >> uramekus
+**Rafael Magalhães >> RwarlordM**
 
-Leonardo Bozzetto >> Bozzetto
+**Lucas Francesco >> uramekus**
 
-Eduardo Mendes >> dudis-dot
+**Leonardo Bozzetto >> Bozzetto
+
+**Eduardo Mendes >> dudis-dot**
