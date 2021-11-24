@@ -9,6 +9,9 @@ class Marcada():
 	def __str__(self):
 		return f"[T] {self.formula}" if self.valor else f"[F] {self.formula}"
 
+	def __repr__(self):
+		return f"[T] {self.formula}" if self.valor else f"[F] {self.formula}"
+
 	def eh_saturada(self):
 		return len(self.children) == 0
 
