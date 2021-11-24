@@ -12,6 +12,6 @@ Projeto de MAC0239 com intuito de implementar um sistema de provas para cálculo
 
 **Lucas Francesco >> uramekus**
 
-**Leonardo Bozzetto >> Bozzetto
+**Leonardo Bozzetto >> Bozzetto**
 
 **Eduardo Mendes >> dudis-dot**
