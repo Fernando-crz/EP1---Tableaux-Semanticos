@@ -15,6 +15,13 @@ class Marcada():
 	def __repr__(self):
 		return f"[T] {self.formula}" if self.valor else f"[F] {self.formula}"
 
+	def __invert__(self):
+		return Marcada(not self.valor, self.formula)
+
+	def __eq__(self, marcada):
+		return self.valor == marcada.valor and self.formula == marcada.formula
+
+
 	def obtem_tamanho(self) -> int:
 		return len(self.children) + 1
 
@@ -76,11 +83,30 @@ def eh_ramo_fechado(ramo: list) -> bool:
 	for marcada in ramo:
 		if marcada.eh_saturada():
 			for saturada in expressoes_saturadas:
-				if saturada.formula == marcada.formula and saturada.valor != marcada.valor:
+				if saturada == ~marcada:
 					return True
 			expressoes_saturadas.append(marcada)
 	return False
 			
+def aplicar_alfa(ramo: list):
+	"""
+	Expande todas expressoes alfa em ramo, adicionando elementos encontrados ao ramo.
+	"""
+	for marcada in ramo:
+		if marcada.obtem_expansao():
+			if marcada.valor:
+				if isinstance(marcada.formula, And):
+					ramo.append(Marcada(True,marcada.children[0]))
+					ramo.append(Marcada(True,marcada.children[1]))
+				if isinstance(marcada.formula, Not):
+					ramo.append(Marcada(False,marcada.children[0]))
+			else:
+				if isinstance(marcada.formula, Or):
+					ramo.append(Marcada(False,marcada.children[0]))
+					ramo.append(Marcada(False,marcada.children[1]))
+				if isinstance(marcada.formula, Implies):
+					ramo.append(Marcada(True,marcada.children[0]))
+					ramo.append(Marcada(False,marcada.children[1]))
 
 
 def provar_validade(ramo: list) -> bool:
@@ -112,6 +138,11 @@ def main():
 	ramo_exemplo.append(Marcada(False, "P"))
 	print(ramo_exemplo)
 	print(f"Eh ramo fechado?: {eh_ramo_fechado(ramo_exemplo)}")
+
+	print("\nAPLICAR ALFA EM MENSAGENS MARCADAS:")
+	print(marcadas)
+	aplicar_alfa(marcadas)
+	print(marcadas)
 
 
 if __name__=="__main__":
