@@ -30,14 +30,16 @@ class Marcada():
 
 	def obtem_expansao(self) -> bool:
 		"""
-		Avalia se expansao em objeto marcado eh alfa ou beta, retornando true para alfa e false para beta. 
+		Avalia se expansao em objeto marcado eh alfa ou beta, retornando 0 para alfa e 1 para beta e -1 para quando a expressao n tem expansao(saturada). 
 		"""
+		if self.eh_saturada():
+			return -1
 		if self.valor:
-			if isinstance(self.formula, And) or isinstance(self.formula, Not): return True
-			if isinstance(self.formula, Or) or isinstance(self.formula, Implies): return False
+			if isinstance(self.formula, And) or isinstance(self.formula, Not): return 0
+			if isinstance(self.formula, Or) or isinstance(self.formula, Implies): return 1
 		else:
-			if isinstance(self.formula, And) or isinstance(self.formula, Not): return False
-			if isinstance(self.formula, Or) or isinstance(self.formula, Implies): return True
+			if isinstance(self.formula, And) or isinstance(self.formula, Not): return 1
+			if isinstance(self.formula, Or) or isinstance(self.formula, Implies): return 0
 
 
 def para_variavel(variavel: str) -> Variable:
@@ -122,9 +124,27 @@ def aplicar_beta(marcada: Marcada) -> tuple:
 			return (Marcada(False,marcada.children[0]), Marcada(False,marcada.children[1])) 
 		if isinstance(marcada.formula, Not):
 			return (Marcada(True,marcada.children[0]))
+	return -1
+
+def cria_marcacao_beta(ramo: list) -> list:
+	betas = []
+	for marcada in ramo:
+		if marcada.eh_saturada():
+			betas.append(False)
+			continue
+		betas.append(not marcada.obtem_expansao())
+	return betas
 
 def provar_validade(ramo: list) -> bool:
-	pass # a implementar
+	pilha = []
+	while True:
+		aplicar_alfa_ramo(ramo)
+		betas = cria_marcacao_beta(ramo)
+		if eh_ramo_fechado(ramo):
+			print("Valido!")
+			return True
+	return False
+
 
 def main():
 	formula1 = converter_formula("(P >> ~(Q >> R) & (Q >> (P|~R)))")
@@ -155,8 +175,15 @@ def main():
 
 	print("\nAPLICAR ALFA EM MENSAGENS MARCADAS:")
 	print(marcadas)
-	aplicar_alfa(marcadas)
+	aplicar_alfa_ramo(marcadas)
 	print(marcadas)
+	betas  = []
+	for marcada in ramo_exemplo:
+		if marcada.eh_saturada():
+			betas.append(False)
+			continue
+		betas.append(not marcada.obtem_expansao())
+	print(betas)
 
 
 if __name__=="__main__":
