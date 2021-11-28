@@ -90,25 +90,37 @@ def eh_ramo_fechado(ramo: list) -> bool:
 			expressoes_saturadas.append(marcada)
 	return False
 			
-def aplicar_alfa_ramo(ramo: list):
+def aplicar_alfa_ramo(ramo: list, lo: int, hi: int):
 	"""
-	Expande todas expressoes alfa em ramo, adicionando elementos encontrados ao ramo.
+	Expande todas expressoes alfa em ramo, adicionando elementos encontrados ao ramo
 	"""
-	for marcada in ramo:
-		if marcada.obtem_expansao():
+	ramo_utilizado = ramo[lo:hi]
+
+	for marcada in ramo_utilizado:
+
+		if marcada.obtem_expansao() == 0:
 			if marcada.valor:
 				if isinstance(marcada.formula, And):
-					ramo.append(Marcada(True,marcada.children[0]))
-					ramo.append(Marcada(True,marcada.children[1]))
+					for children in marcada.children:
+						ramo.append(Marcada(True,children))
 				if isinstance(marcada.formula, Not):
 					ramo.append(Marcada(False,marcada.children[0]))
 			else:
 				if isinstance(marcada.formula, Or):
-					ramo.append(Marcada(False,marcada.children[0]))
-					ramo.append(Marcada(False,marcada.children[1]))
+					for children in marcada.children:
+						ramo.append(Marcada(False,children))
 				if isinstance(marcada.formula, Implies):
 					ramo.append(Marcada(True,marcada.children[0]))
 					ramo.append(Marcada(False,marcada.children[1]))
+
+def aplicar_alfa_iter(ramo: list):
+	n = 0
+	new_n = len(ramo)
+	while (new_n != n):
+		aplicar_alfa_ramo(ramo, n, new_n)
+		n = len(ramo)
+		aplicar_alfa_ramo(ramo, new_n, n)
+		new_n = len(ramo)
 
 def aplicar_beta(marcada: Marcada) -> tuple:
 	"""
@@ -172,18 +184,11 @@ def main():
 	ramo_exemplo.append(Marcada(False, "P"))
 	print(ramo_exemplo)
 	print(f"Eh ramo fechado?: {eh_ramo_fechado(ramo_exemplo)}")
+	
+	ramo_ex_2 = [Marcada(True,"A & (B&C)"), Marcada(False, "(D & E) >> B")]
 
-	print("\nAPLICAR ALFA EM MENSAGENS MARCADAS:")
-	print(marcadas)
-	aplicar_alfa_ramo(marcadas)
-	print(marcadas)
-	betas  = []
-	for marcada in ramo_exemplo:
-		if marcada.eh_saturada():
-			betas.append(False)
-			continue
-		betas.append(not marcada.obtem_expansao())
-	print(betas)
+	aplicar_alfa_iter(ramo_ex_2)
+	print(eh_ramo_fechado(ramo_ex_2))
 
 
 if __name__=="__main__":
