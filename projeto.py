@@ -4,7 +4,7 @@ class Marcada():
 	def __init__(self, valor: bool, formula): 
 		self.valor = valor
 		if isinstance(formula, str):
-			self.formula = converter_formula(formula)
+			self.formula = self.converter_formula(formula)
 		else:
 			self.formula = formula
 		self.children = self.formula.children
@@ -21,6 +21,17 @@ class Marcada():
 	def __eq__(self, marcada):
 		return self.valor == marcada.valor and self.formula == marcada.formula
 
+	@staticmethod
+	def converter_formula(formula: str) -> Proposition:
+	"""
+	Recebe de input uma formula em formato de string e a retorna em um objeto Proposition
+	"""
+	termos = " ><|&~()"
+	dic_variaveis = formula.maketrans(termos," "*len(termos))	# retira 'termos' de formula e guarda convesoes em dicionario 
+	variaveis = set(formula.translate(dic_variaveis).split())	# 'traduz' formula usando dicionario anterior, e retorna um set com variaveis
+	for variavel in variaveis:
+		exec(f"{variavel} = para_variavel('{variavel}')")	# associamos cada variavel ao seu respectivo nome com exec
+	return eval(formula)	# retornamos a expressao convertida usando eval()
 
 	def obtem_tamanho(self) -> int:
 		return len(self.children) + 1
@@ -41,22 +52,23 @@ class Marcada():
 			if isinstance(self.formula, And) or isinstance(self.formula, Not): return 1
 			if isinstance(self.formula, Or) or isinstance(self.formula, Implies): return 0
 
+class Ramo():
+	def __init__(self, marcadas, marcas = None):
+		if isinstance(marcadas, str):
+			self.marcadas = self.converter_tableaux(marcadas)
+		else:
+			self.marcadas = marcadas
+		self.m = [] if betas == None else self.betas = betas
+		self.tamanho = sum([marcada.obtem_tamanho() for marcada in self.marcadas])
 
-def para_variavel(variavel: str) -> Variable:
-	return Variable(variavel)
+	def __add__(self, marca):
+		return Ramo(self.marcadas+[marca], betas = self.betas, limite = self.limite)
 
-def converter_formula(formula: str) -> Proposition:
-	"""
-	Recebe de input uma formula em formato de string e a retorna em um objeto Proposition
-	"""
-	termos = " ><|&~()"
-	dic_variaveis = formula.maketrans(termos," "*len(termos))	# retira 'termos' de formula e guarda convesoes em dicionario 
-	variaveis = set(formula.translate(dic_variaveis).split())	# 'traduz' formula usando dicionario anterior, e retorna um set com variaveis
-	for variavel in variaveis:
-		exec(f"{variavel} = para_variavel('{variavel}')")	# associamos cada variavel ao seu respectivo nome com exec
-	return eval(formula)	# retornamos a expressao convertida usando eval()
+	def aplicar_alfas(self):
 
-def converter_tableaux(formula: str) -> list:
+
+	@staticmethod
+	def converter_tableaux(formula: str) -> list:
 	"""
 	Recebe de input um tableaux em formato de sting e retorna uma lista de formulas marcadas
 	"""
@@ -75,7 +87,29 @@ def converter_tableaux(formula: str) -> list:
 		marcadas.append(Marcada(True, f))
 
 
-	return marcadas
+	return Ramo(marcadas)
+
+
+	@staticmethod
+	def provar_validade(ramo):
+		aplicar_alfas()
+		verificar_se_fechado()
+			se sim, verificar_valido()
+				se sim, retornar True
+			c.c:
+				retornar ramo
+		provar_validade(expressao + b1)
+			se retorna ramo,
+				retornar ramo
+		provar_validade(expressao + b2)
+			se retorna ramo,
+				retornar ramo
+
+		retornar True
+
+def para_variavel(variavel: str) -> Variable:
+	return Variable(variavel)
+
 
 def eh_ramo_fechado(ramo: list) -> bool:
 	"""
@@ -193,3 +227,4 @@ def main():
 
 if __name__=="__main__":
 	main()
+
