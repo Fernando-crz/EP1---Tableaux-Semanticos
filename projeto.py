@@ -37,9 +37,6 @@ class Marcada():
 			exec(f"{variavel} = para_variavel('{variavel}')")	# associamos cada variavel ao seu respectivo nome com exec
 		return eval(formula)	# retornamos a expressao convertida usando eval()
 
-	def obtem_tamanho(self) -> int:
-		return len(self.children) + 1
-
 	def eh_saturada(self) -> bool:
 		return len(self.children) == 0
 
@@ -67,7 +64,6 @@ class Ramo():
 			self.marcas = []
 			for m in self.marcadas:
 				self.marcas.append(m.obtem_expansao())
-		self.tamanho = sum([marcada.obtem_tamanho() for marcada in self.marcadas])
 
 	def __add__(self, marcada):
 		return Ramo(self.marcadas+[marcada], marcas = self.marcas + [marcada.obtem_expansao()])
@@ -123,7 +119,7 @@ class Ramo():
 	@staticmethod
 	def converter_tableaux(formula: str) -> list:
 		"""
-		Recebe de input um tableaux em formato de sting e retorna uma lista de formulas marcadas
+		Recebe de input um tableaux em formato de string e retorna uma lista de formulas marcadas
 		"""
 		marcadas = []
 		
@@ -201,75 +197,18 @@ class Ramo():
 def para_variavel(variavel: str) -> Variable:
 	return Variable(variavel)
 
-def eh_ramo_fechado(ramo: list) -> bool:
-	"""
-	Verifica em ramo(lista de marcas) se o mesmo esta fechado.
-	"""
-	expressoes_saturadas = []
-	for marcada in ramo:
-		if marcada.eh_saturada():
-			for saturada in expressoes_saturadas:
-				if saturada == ~marcada:
-					return True
-			expressoes_saturadas.append(marcada)
-	return False
-
-def aplicar_beta(marcada: Marcada) -> tuple:
-	"""
-	Expande expressao marcada com expressao beta.
-	"""	
-	if marcada.valor:
-		if isinstance(marcada.formula, Or):
-			return (Marcada(True,marcada.children[0]), Marcada(True,marcada.children[1])) 
-		if isinstance(marcada.formula, Implies):
-			return (Marcada(False,marcada.children[0]), Marcada(True,marcada.children[1]))
-	else:
-		if isinstance(marcada.formula, And):
-			return (Marcada(False,marcada.children[0]), Marcada(False,marcada.children[1])) 
-		if isinstance(marcada.formula, Not):
-			return (Marcada(True,marcada.children[0]))
-	return -1
-
 def main():
-	# formula1 = converter_formula("(P >> ~(Q >> R) & (Q >> (P|~R)))")
+	print("[Tableau] Digite o sequente abaixo (Utilize # para consequência lógica):")
+	entrada = input("+ ")
+	formula = Ramo(entrada)
+	resultado = Ramo.provar_validade(formula)
+	if isinstance(resultado, list):
+		print("[Tableau] Sequente inválido! Segue o contra-exemplo abaixo.")
+		print(resultado)
+	else:
+		print("[Tableau] Sequente válido!")
+
 	
-	# marcada = Marcada(False, formula1)
-	# if marcada.obtem_expansao():
-	# 	print("ALFA!")
-	# else:
-	# 	print("BETA!")
-	# print(marcada.children)
-
-	# marcadas = converter_tableaux("P >> Q, Q >> R # P >> R")
-	# valores = []
-	# tamanho_final = 0
-	# for m in marcadas:
-	# 	valores.append("ALFA") if m.obtem_expansao() else valores.append("BETA")
-	# 	tamanho_final += m.obtem_tamanho()
-	# print(f"tamanho final: {tamanho_final}")
-	# print(valores)
-	# print(marcadas)
-
-	# ramo_exemplo = [Marcada(True, "P >> Q"), Marcada(True, "Q >> R"), Marcada(False, "P >> R"), Marcada(True, "P"), Marcada(False, "R"), Marcada(False, "Q")]
-	# print(ramo_exemplo)
-	# print(f"Eh ramo fechado?: {eh_ramo_fechado(ramo_exemplo)}")
-	# ramo_exemplo.append(Marcada(False, "P"))
-	# print(ramo_exemplo)
-	# print(f"Eh ramo fechado?: {eh_ramo_fechado(ramo_exemplo)}")
-	
-	# ramo_ex_2 = [Marcada(True,"A & (B&C)"), Marcada(False, "(D & E) >> B")]
-
-	# aplicar_alfa_iter(ramo_ex_2)
-	# print(eh_ramo_fechado(ramo_ex_2))
- 
-	formula = Ramo("# (~P & ~Q) >> (~(P | Q))")
-	print(Ramo.provar_validade(formula))
-	# print(formula)
-	# formula = Ramo.aplicar_alfas(formula)
-	# print(formula)
-	
-
-
 if __name__=="__main__":
 	main()
 
