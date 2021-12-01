@@ -11,7 +11,7 @@ class Marcada():
 	def __init__(self, valor: bool, formula): 
 		self.valor = valor
 		if isinstance(formula, str):
-			self.formula = converter_formula(formula)
+			self.formula = self.converter_formula(formula)
 		else:
 			self.formula = formula
 		self.children = self.formula.children
@@ -28,8 +28,6 @@ class Marcada():
 	def __eq__(self, marcada):
 		return self.valor == marcada.valor and self.formula == marcada.formula
 
-<<<<<<< Updated upstream
-=======
 	@staticmethod
 	def converter_formula(formula: str) -> Proposition:
 		termos = " ><|&~()"
@@ -38,7 +36,6 @@ class Marcada():
 		for variavel in variaveis:
 			exec(f"{variavel} = para_variavel('{variavel}')")	# associamos cada variavel ao seu respectivo nome com exec
 		return eval(formula)	# retornamos a expressao convertida usando eval()
->>>>>>> Stashed changes
 
 	def obtem_tamanho(self) -> int:
 		return len(self.children) + 1
@@ -59,28 +56,6 @@ class Marcada():
 			if isinstance(self.formula, And) or isinstance(self.formula, Not): return 1
 			if isinstance(self.formula, Or) or isinstance(self.formula, Implies): return 0
 
-<<<<<<< Updated upstream
-
-def para_variavel(variavel: str) -> Variable:
-	return Variable(variavel)
-
-def converter_formula(formula: str) -> Proposition:
-	"""
-	Recebe de input uma formula em formato de string e a retorna em um objeto Proposition
-	"""
-	termos = " ><|&~()"
-	dic_variaveis = formula.maketrans(termos," "*len(termos))	# retira 'termos' de formula e guarda convesoes em dicionario 
-	variaveis = set(formula.translate(dic_variaveis).split())	# 'traduz' formula usando dicionario anterior, e retorna um set com variaveis
-	for variavel in variaveis:
-		exec(f"{variavel} = para_variavel('{variavel}')")	# associamos cada variavel ao seu respectivo nome com exec
-	return eval(formula)	# retornamos a expressao convertida usando eval()
-
-def converter_tableaux(formula: str) -> list:
-	"""
-	Recebe de input um tableaux em formato de sting e retorna uma lista de formulas marcadas
-	"""
-	marcadas = []
-=======
 class Ramo():
 	def __init__(self, marcadas, marcas = None):
 		if isinstance(marcadas, str):
@@ -102,22 +77,31 @@ class Ramo():
 
 	@staticmethod
 	def aplicar_alfas(ramo):
-		for i,marcada in enumerate(ramo.marcadas): 
+		inf = 0
+		sup = len(ramo.marcadas)
+		while inf < sup:
+			ramo = Ramo.aplicar_alfas_aux(ramo, inf, sup)
+			inf = sup
+			sup = len(ramo.marcadas) 
+		return ramo
+
+	@staticmethod
+	def aplicar_alfas_aux(ramo, inf, sup):
+		for i in range(inf,sup):
 			if ramo.marcas[i] == 0:
-				# print(len(ramo.marcas))
-				if marcada.valor:
-					if isinstance(marcada.formula, And):
-						for elemento in marcada.children:
+				if ramo.marcadas[i].valor:
+					if isinstance(ramo.marcadas[i].formula, And):
+						for elemento in ramo.marcadas[i].children:
 							ramo = ramo + Marcada(True, elemento)
-					if isinstance(marcada.formula, Not):
-						ramo = ramo + Marcada(False, marcada.children[0])
+					if isinstance(ramo.marcadas[i].formula, Not):
+						ramo = ramo + Marcada(False, ramo.marcadas[i].children[0])
 				else:
-					if isinstance(marcada.formula, Or):
-						for elemento in marcada.children:
+					if isinstance(ramo.marcadas[i].formula, Or):
+						for elemento in ramo.marcadas[i].children:
 							ramo = ramo + Marcada(False, elemento)
-					if isinstance(marcada.formula, Implies):
-						ramo = ramo + Marcada(True, marcada.children[0])
-						ramo = ramo + Marcada(False, marcada.children[1])
+					if isinstance(ramo.marcadas[i].formula, Implies):
+						ramo = ramo + Marcada(True, ramo.marcadas[i].children[0])
+						ramo = ramo + Marcada(False, ramo.marcadas[i].children[1])
 				
 				ramo.marcas[i] = -1
 		return ramo
@@ -142,24 +126,33 @@ class Ramo():
 		Recebe de input um tableaux em formato de sting e retorna uma lista de formulas marcadas
 		"""
 		marcadas = []
->>>>>>> Stashed changes
-
-		formulas = formula.split(",")
-		temp = formulas.pop().split("#")
 		
-		for f in temp:
-			formulas.append(f)
-		formulas = [Marcada.converter_formula(f) for f in formulas]
-		for i,f in enumerate(formulas):
-			if (i == len(formulas) - 1):
-				marcadas.append(Marcada(False, f))
+		if not "#" in formula:
+			raise SyntaxError
+
+		f1, f2 = formula.split('#')
+
+		f1 = f1.split(",")
+		f2 = f2.split(",")
+
+		formulas_verdadeiro = []
+		formulas_falso = []
+
+		for f in f1:
+			if f == "":
 				continue
-			marcadas.append(Marcada(True, f))
+			formulas_verdadeiro.append(Marcada.converter_formula(f))
 
+		for f in f2:
+			if f == "":
+				continue
+			formulas_falso.append(Marcada.converter_formula(f))
 
-<<<<<<< Updated upstream
-	return marcadas
-=======
+		for formula in formulas_verdadeiro:
+			marcadas.append(Marcada(True, formula))
+		for formula in formulas_falso:
+			marcadas.append(Marcada(False, formula))	
+
 		return marcadas
 
 	@staticmethod
@@ -193,12 +186,9 @@ class Ramo():
 	@staticmethod
 	def provar_validade(ramo):
 		ramo = Ramo.aplicar_alfas(ramo)
-		# print(ramo.marcadas)
 		if ramo.verificar_se_fechado():
 			return True
-		# print(ramo.marcas)
 		operacao = Ramo.extrair_beta(ramo)
-		# print(operacao)
 		if operacao == False:
 			return ramo.obter_saturacoes()
 		betas, ramo = operacao
@@ -210,7 +200,6 @@ class Ramo():
 
 def para_variavel(variavel: str) -> Variable:
 	return Variable(variavel)
->>>>>>> Stashed changes
 
 def eh_ramo_fechado(ramo: list) -> bool:
 	"""
@@ -273,9 +262,14 @@ def main():
 	# aplicar_alfa_iter(ramo_ex_2)
 	# print(eh_ramo_fechado(ramo_ex_2))
  
-	formula = Ramo("~(P | Q) >> ~P & ~Q")
+	formula = Ramo("# (~P & ~Q) >> (~(P | Q))")
 	print(Ramo.provar_validade(formula))
+	# print(formula)
+	# formula = Ramo.aplicar_alfas(formula)
+	# print(formula)
+	
 
 
 if __name__=="__main__":
 	main()
+
