@@ -1,5 +1,7 @@
 from code_base_EP1 import *
 
+
+
 def cria_lista_unicos(lista):
 	resultado = []
 	for elemento in lista:
@@ -54,6 +56,9 @@ class Marcada():
 			if isinstance(self.formula, Or) or isinstance(self.formula, Implies): return 0
 
 class Ramo():
+	
+	expansoes = []
+
 	def __init__(self, marcadas, marcas = None):
 		if isinstance(marcadas, str):
 			self.marcadas = self.converter_tableaux(marcadas)
@@ -87,15 +92,19 @@ class Ramo():
 			if ramo.marcas[i] == 0:
 				if ramo.marcadas[i].valor:
 					if isinstance(ramo.marcadas[i].formula, And):
+						Ramo.expansoes.append(("Alfa And",ramo.marcadas[i]))
 						for elemento in ramo.marcadas[i].children:
 							ramo = ramo + Marcada(True, elemento)
 					if isinstance(ramo.marcadas[i].formula, Not):
+						Ramo.expansoes.append(("Alfa Not",ramo.marcadas[i]))
 						ramo = ramo + Marcada(False, ramo.marcadas[i].children[0])
 				else:
 					if isinstance(ramo.marcadas[i].formula, Or):
+						Ramo.expansoes.append(("Alfa Or",ramo.marcadas[i]))
 						for elemento in ramo.marcadas[i].children:
 							ramo = ramo + Marcada(False, elemento)
 					if isinstance(ramo.marcadas[i].formula, Implies):
+						Ramo.expansoes.append(("Alfa Implies",ramo.marcadas[i]))
 						ramo = ramo + Marcada(True, ramo.marcadas[i].children[0])
 						ramo = ramo + Marcada(False, ramo.marcadas[i].children[1])
 				
@@ -164,16 +173,20 @@ class Ramo():
 		retorno = []
 		if marcada.valor:
 			if isinstance(marcada.formula, Or):
+				Ramo.expansoes.append(("Beta Or",marcada))
 				for elemento in marcada.children:
 					retorno.append(Marcada(True, elemento))
 			if isinstance(marcada.formula, Implies):
+				Ramo.expansoes.append(("Beta Implies",marcada))
 				retorno.append(Marcada(False, marcada.children[0]))
 				retorno.append(Marcada(True, marcada.children[1]))
 		else:
 			if isinstance(marcada.formula, And):
+				Ramo.expansoes.append(("Beta And",marcada))
 				for elemento in marcada.children:
 					retorno.append(Marcada(False, elemento))
 			if isinstance(marcada.formula, Not):
+				Ramo.expansoes.append(("Beta Not",marcada))	
 				retorno.append(Marcada(True, marcada.children[0]))
 		ramo.marcas[local] = -1
 		return (retorno, ramo)
@@ -197,16 +210,30 @@ class Ramo():
 def para_variavel(variavel: str) -> Variable:
 	return Variable(variavel)
 
+def imprime_operacoes():
+	for i in Ramo.expansoes:
+		tipo, operacao = i[0].split(" ")
+		print(f"Tipo de expansão: {tipo}		Operação: {operacao}")
+		print(f"+ {i[1]}")
+		print()
+
 def main():
 	print("[Tableau] Digite o sequente abaixo (Utilize # para consequência lógica):")
 	entrada = input("+ ")
 	formula = Ramo(entrada)
 	resultado = Ramo.provar_validade(formula)
 	if isinstance(resultado, list):
-		print("[Tableau] Sequente inválido! Segue o contra-exemplo abaixo.")
+		print("[Tableau] Sequente inválido! Segue o contra-exemplo abaixo:")
 		print(resultado)
+		print()
+		print("[Tableau] Sequencia de operacoes utilizada: ")
+		imprime_operacoes()
 	else:
 		print("[Tableau] Sequente válido!")
+		print()
+		print("[Tableau] Sequencia de operacoes utilizada: ")
+		imprime_operacoes()
+		
 
 	
 if __name__=="__main__":
